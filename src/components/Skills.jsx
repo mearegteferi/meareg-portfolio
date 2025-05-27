@@ -8,6 +8,41 @@ function Skills() {
     AOS.init({ duration: 1000, once: true });
   }, []);
 
+  
+  const skillCards = [
+    {
+      title: "Frontend",
+      skills: ["HTML", "CSS", "JavaScript", "React.js", "Tailwind CSS", "Material-UI"],
+      level: 5,
+      delay: 200,
+    },
+    {
+      title: "Backend",
+      skills: ["Python", "Django", "Django REST Framework", "Node.js", "Express.js"],
+      level: 4,
+      delay: 300,
+    },
+    {
+      title: "Database",
+      skills: ["PostgreSQL", "MySQL", "MongoDB", "SQLite"],
+      level: 4,
+      delay: 400,
+    },
+    {
+      title: "Tools",
+      skills: ["Git & GitHub", "VS Code", "Postman", "Docker", "Figma"],
+      level: 5,
+      delay: 500,
+    },
+    {
+      title: "Other Skills",
+      skills: ["API Design", "Agile Development", "Problem-Solving", "Unit Testing"],
+      level: 4,
+      delay: 600,
+    },
+  ];
+
+  
   return (
     <div id="skills" className="py-24 bg-gradient-to-b from-blue-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
