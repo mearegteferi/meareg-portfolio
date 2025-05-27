@@ -8,6 +8,27 @@ function Projects() {
     AOS.init({ duration: 1000, once: true });
   }, []);
 
+    const projects = [
+    {
+      title: "Project Title",
+      description:
+        "A short description that explains the purpose and key features of this project. It solves specific problems or brings value in a unique way.",
+      demoLink: "#",
+      repoLink: "#",
+      image: "https://via.placeholder.com/600x400",
+      delay: 200,
+    },
+    {
+      title: "Another Project",
+      description:
+        "Another brief description of a different project, with a focus on its key technologies and features.",
+      demoLink: "#",
+      repoLink: "#",
+      image: "https://via.placeholder.com/600x400",
+      delay: 300,
+    },
+  ];
+  
   return (
     <div id="projects" className="py-24  text-gray-600">
       <div className="max-w-4xl mx-auto px-6">
