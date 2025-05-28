@@ -16,7 +16,10 @@ function Navbar() {
     { name: "Contact", href: "#contact", id: "contact" },
     { name: "About", href: "#about", id: "about" },
   ];
-  
+
+  const baseLinkClass = "mt-6 text-sm font-robotoSlab transition-all duration-300 ease-in-out";
+  const activeLinkClass = "py-2 px-3 border border-[#0191ca] rounded-lg text-[#0191ca] hover:bg-[#0191ca] hover:text-black";
+
   return (
     <>
       <div className="mb-96 h-20 pb-6 fixed top-0 right-0 left-0 z-50 flex justify-between shrink font-bold font-inter text-gray-300 bg-[#091b29]">
