@@ -9,6 +9,14 @@ function Navbar() {
     setActiveSection(section)
   }
 
+    const navItems = [
+    { name: "Home", href: "#home", id: "home" },
+    { name: "Projects", href: "#projects", id: "projects" },
+    { name: "Skills", href: "#skills", id: "skills" },
+    { name: "Contact", href: "#contact", id: "contact" },
+    { name: "About", href: "#about", id: "about" },
+  ];
+  
   return (
     <>
       <div className="mb-96 h-20 pb-6 fixed top-0 right-0 left-0 z-50 flex justify-between shrink font-bold font-inter text-gray-300 bg-[#091b29]">
