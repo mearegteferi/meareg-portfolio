@@ -64,7 +64,7 @@ const Header: React.FC = () => {
                 <span className="material-symbols-outlined text-white text-xl">code</span>
               </div>
               <h2 className="text-white text-lg font-bold tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all duration-300">
-                Magi-Teferi
+                MearegTeferi
               </h2>
             </div>
 
