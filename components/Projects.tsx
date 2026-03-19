@@ -54,7 +54,7 @@ const Projects: React.FC = () => {
       description:
         "Participated in building a POS system focusing on transaction flow, UI integration, and backend logic.",
       image: posImg,
-      stack: ["Django", "JavaScript", "Bootstrap"],
+      stack: ["FastAPI", "JavaScript", "Bootstrap"],
       github: "",
       demo: "",
     },
@@ -64,7 +64,7 @@ const Projects: React.FC = () => {
       description:
         "A developer-focused task management tool inspired by Jira with projects, tasks, and workflows.",
       image: taskImg,
-      stack: ["FastAPI", "React", "PostgreSQL"],
+      stack: ["FastAPI", "NextJS", "PostgreSQL"],
       github: "https://github.com/mearegteferi/task_management",
       demo: "",
     },
