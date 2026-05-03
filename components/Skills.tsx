@@ -1,269 +1,140 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { useTheme } from '../App';
 
-type Category = "Languages" | "Frameworks" | "Tools" | "Soft Skills";
+type Tab = 'Backend' | 'Frontend' | 'Architecture' | 'Tools';
+const tabs: Tab[] = ['Backend', 'Frontend', 'Architecture', 'Tools'];
+
+const skillData: Record<Tab, { name: string; slug: string; color: string; note: string }[]> = {
+  Backend: [
+    { name: 'Python',     slug: 'python',     color: '3776AB', note: 'Primary language for all backend work' },
+    { name: 'FastAPI',    slug: 'fastapi',     color: '009688', note: 'High-performance async REST APIs' },
+    { name: 'Django',     slug: 'django',      color: '44B78B', note: 'Full-stack web apps and DRF APIs' },
+    { name: 'PostgreSQL', slug: 'postgresql',  color: '4169E1', note: 'Primary relational database' },
+    { name: 'Redis',      slug: 'redis',       color: 'DC382D', note: 'Caching and low-latency state management' },
+    { name: 'RabbitMQ',   slug: 'rabbitmq',    color: 'FF6600', note: 'Event-driven async communication' },
+    { name: 'SQLAlchemy', slug: 'sqlalchemy',  color: 'D71F00', note: 'ORM-based database modeling' },
+    { name: 'Pydantic',   slug: 'pydantic',    color: 'E92063', note: 'Data validation and schema enforcement' },
+    { name: 'MongoDB',    slug: 'mongodb',     color: '47A248', note: 'NoSQL document-based storage' },
+    { name: 'Node.js',    slug: 'nodedotjs',   color: '339933', note: 'Express-based REST APIs' },
+    { name: 'Odoo',       slug: 'odoo',        color: '714B67', note: 'ERP customization and module development' },
+    { name: 'LangGraph',  slug: 'langchain',   color: '1C3C3C', note: 'Stateful multi-agent AI workflow orchestration' },
+  ],
+  Frontend: [
+    { name: 'React',        slug: 'react',       color: '61DAFB', note: 'Component-based UI development' },
+    { name: 'Next.js',      slug: 'nextdotjs',   color: '000000', note: 'SSR and full-stack React applications' },
+    { name: 'TypeScript',   slug: 'typescript',  color: '3178C6', note: 'Static typing for reliable frontend code' },
+    { name: 'JavaScript',   slug: 'javascript',  color: 'F7DF1E', note: 'Core language for frontend behavior' },
+    { name: 'Tailwind CSS', slug: 'tailwindcss', color: '06B6D4', note: 'Utility-first responsive styling' },
+    { name: 'Redux',        slug: 'redux',       color: '764ABC', note: 'Centralized state management' },
+  ],
+  Architecture: [
+    { name: 'Clean Architecture',   slug: '', color: '', note: 'Decoupled, layered system design' },
+    { name: 'Domain-Driven Design', slug: '', color: '', note: 'Modeling complex business domains' },
+    { name: 'Microservices',        slug: '', color: '', note: 'Distributed service-oriented systems' },
+    { name: 'Event-Driven Arch.',   slug: '', color: '', note: 'Async, non-blocking communication' },
+    { name: 'RESTful API Design',   slug: '', color: '', note: 'OpenAPI-standard API architecture' },
+    { name: 'Repository Pattern',   slug: '', color: '', note: 'Abstracted data access layer' },
+  ],
+  Tools: [
+    { name: 'Docker',         slug: 'docker',        color: '2496ED', note: 'Containerization and compose setups' },
+    { name: 'Git',            slug: 'git',           color: 'F05032', note: 'Version control and branching' },
+    { name: 'GitHub Actions', slug: 'githubactions', color: '2088FF', note: 'CI/CD pipeline automation' },
+    { name: 'Nginx',          slug: 'nginx',         color: '009639', note: 'Web server and reverse proxy' },
+    { name: 'Traefik',        slug: 'traefikproxy',  color: '24A1C1', note: 'Reverse proxy for Docker services' },
+    { name: 'Pytest',         slug: 'pytest',        color: '0A9EDC', note: 'Backend unit and integration testing' },
+    { name: 'Playwright',     slug: 'playwright',    color: '2EAD33', note: 'End-to-end frontend testing' },
+    { name: 'Postman',        slug: 'postman',       color: 'FF6C37', note: 'API testing and documentation' },
+  ],
+};
+
+const archEmoji: Record<string, string> = {
+  'Clean Architecture':   '🏛️',
+  'Domain-Driven Design': '🧩',
+  'Microservices':        '🔗',
+  'Event-Driven Arch.':   '⚡',
+  'RESTful API Design':   '🌐',
+  'Repository Pattern':   '📦',
+};
 
 const Skills: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Category>("Languages");
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const [active, setActive] = useState<Tab>('Backend');
 
-  const categories: Category[] = ["Languages", "Frameworks", "Tools", "Soft Skills"];
+  const bg       = isDark ? 'bg-[#111118]'   : 'bg-[#f8f8fc]';
+  const cardBg   = isDark ? 'bg-[#16161f]'   : 'bg-white';
+  const border   = isDark ? 'border-white/8' : 'border-gray-200';
+  const titleC   = isDark ? 'text-white'     : 'text-gray-900';
+  const noteC    = isDark ? 'text-gray-500'  : 'text-gray-400';
+  const subC     = isDark ? 'text-gray-500'  : 'text-gray-400';
 
   return (
-    <div id="skills" className="w-full py-24 bg-[#030014] relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px]" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-900/20 rounded-full blur-[120px]" />
+    <div id="skills" className={`relative w-full py-24 px-4 ${bg} overflow-hidden transition-colors duration-300`}>
+      <div className="ambient absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] rounded-full bg-indigo-600/10 blur-[80px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-black text-white">
-            Technical{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
-              Expertise
-            </span>
-          </h2>
-          <p className="text-gray-400 text-lg mt-4 max-w-2xl mx-auto">
-            Technologies and skills I actively use to build modern web applications.
-          </p>
+      <div className="relative z-10 max-w-5xl mx-auto">
 
-          {/* Tabs */}
-          <div className="flex justify-center gap-2 mt-8 p-1.5 bg-white/5 border border-white/10 rounded-xl">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveTab(cat)}
-                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
-                  activeTab === cat
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+        <div className="mb-12">
+          <SectionLabel text="Skills" />
+          <h2 className={`mt-3 text-3xl sm:text-4xl font-bold ${titleC}`}>Technical Expertise</h2>
+          <p className={`mt-2 text-sm ${subC}`}>Technologies, frameworks, and patterns I work with.</p>
         </div>
 
-        {/* Content */}
-        {activeTab === "Soft Skills" ? (
-          <SoftSkillsGrid />
-        ) : (
-          <TechGrid category={activeTab} />
-        )}
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-10">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActive(tab)}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                active === tab
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25'
+                  : isDark
+                  ? 'bg-white/5 text-gray-400 hover:text-white border border-white/10 hover:border-white/20'
+                  : 'bg-white text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-300 shadow-sm'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {skillData[active].map((item, idx) => (
+            <div
+              key={item.name}
+              className={`card-hover flex items-center gap-4 p-4 rounded-xl ${cardBg} border ${border} hover:border-indigo-500/35`}
+              style={{ animationDelay: `${idx * 0.04}s` }}
+            >
+              {active === 'Architecture' ? (
+                <span className="text-2xl w-8 text-center shrink-0">{archEmoji[item.name]}</span>
+              ) : (
+                <img
+                  src={`https://cdn.simpleicons.org/${item.slug}/${item.color}`}
+                  alt={item.name}
+                  className="w-8 h-8 shrink-0"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+              )}
+              <div>
+                <p className={`text-sm font-semibold ${titleC}`}>{item.name}</p>
+                <p className={`text-xs mt-0.5 leading-relaxed ${noteC}`}>{item.note}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
 };
 
-/* ----------------- GRIDS ----------------- */
-
-const TechGrid: React.FC<{ category: Category }> = ({ category }) => {
-  const items = techData[category as keyof typeof techData];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {items.map((item) => (
-        <TechCard key={item.name} {...item} />
-      ))}
-    </div>
-  );
-};
-
-const SoftSkillsGrid: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-    {softSkillsData.map((skill) => (
-      <SoftSkillCard key={skill.title} {...skill} />
-    ))}
+const SectionLabel: React.FC<{ text: string }> = ({ text }) => (
+  <div className="flex items-center gap-3">
+    <div className="h-px w-8 bg-gradient-to-r from-indigo-500 to-violet-500" />
+    <span className="text-indigo-400 text-xs font-bold uppercase tracking-widest">{text}</span>
   </div>
 );
-
-/* ----------------- CARDS ----------------- */
-
-const TechCard: React.FC<{
-  name: string;
-  level: string;
-  slug: string;
-  color: string;
-}> = ({ name, level, slug, color }) => {
-  const iconUrl = `https://cdn.simpleicons.org/${slug}/${color.replace("#", "")}`;
-
-  return (
-    <div className="p-6 bg-[#0a0a1a] border border-white/5 rounded-2xl hover:border-purple-500/30 transition h-full">
-      <div className="flex items-center gap-4 mb-4">
-        <img src={iconUrl} alt={name} className="w-10 h-10" />
-        <h3 className="text-lg font-bold text-white">{name}</h3>
-      </div>
-      <p className="text-gray-400 text-sm leading-relaxed">{level}</p>
-    </div>
-  );
-};
-
-const SoftSkillCard: React.FC<{ icon: string; title: string; desc: string }> = ({
-  icon,
-  title,
-  desc,
-}) => (
-  <div className="p-6 bg-[#0a0a1a] border border-white/5 rounded-2xl hover:border-purple-500/30 transition h-full">
-    <span className="material-symbols-outlined text-purple-400 text-3xl">
-      {icon}
-    </span>
-    <h3 className="text-lg font-bold text-white mt-4 mb-2">{title}</h3>
-    <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
-  </div>
-);
-
-/* ----------------- DATA ----------------- */
-
-const techData = {
-  Languages: [
-    {
-      name: "Python",
-      slug: "python",
-      color: "#3776AB",
-      level: "Primary backend language for building APIs, business logic, and automation."
-    },
-    {
-      name: "JavaScript",
-      slug: "javascript",
-      color: "#F7DF1E",
-      level: "Used to create interactive and dynamic frontend behavior in React applications."
-    },
-    {
-      name: "SQL",
-      slug: "postgresql",
-      color: "#4169E1",
-      level: "Writing structured queries, joins, and data manipulation for relational databases."
-    },
-    {
-      name: "HTML5",
-      slug: "html5",
-      color: "#E34F26",
-      level: "Semantic markup for accessible and well-structured web pages."
-    },
-    {
-      name: "CSS3",
-      slug: "css",
-      color: "#1572B6",
-      level: "Styling responsive layouts using modern CSS techniques."
-    },
-    {
-      name: "TypeScript",
-      slug: "typescript",
-      color: "#3178C6",
-      level: "Improving JavaScript reliability through static typing in frontend projects."
-    }
-  ],
-
-  Frameworks: [
-    {
-      name: "Django",
-      slug: "django",
-      color: "#092E20",
-      level: "Developing full-stack web applications with authentication and business logic."
-    },
-    {
-      name: "FastAPI",
-      slug: "fastapi",
-      color: "#009688",
-      level: "Building high-performance asynchronous REST APIs."
-    },
-    {
-      name: "React",
-      slug: "react",
-      color: "#61DAFB",
-      level: "Creating reusable, component-based user interfaces."
-    },
-    {
-      name: "Pydantic",
-      slug: "pydantic",
-      color: "#E92063",
-      level: "Data validation and schema enforcement for backend APIs."
-    },
-    {
-      name: "SQLAlchemy",
-      slug: "sqlalchemy",
-      color: "#D71F00",
-      level: "ORM-based database modeling and query handling."
-    },
-    {
-      name: "Alembic",
-      slug: "alembic",
-      color: "#4B8BBE",
-      level: "Managing database migrations and schema version control."
-    }
-  ],
-
-  Tools: [
-    {
-      name: "PostgreSQL",
-      slug: "postgresql",
-      color: "#4169E1",
-      level: "Primary relational database used in production-ready applications."
-    },
-    {
-      name: "Docker",
-      slug: "docker",
-      color: "#2496ED",
-      level: "Containerizing applications for consistent development environments."
-    },
-    {
-      name: "Git",
-      slug: "git",
-      color: "#F05032",
-      level: "Version control for collaborative and structured development."
-    },
-    {
-      name: "Playwright",
-      slug: "playwright",
-      color: "#2EAD33",
-      level: "Automated end-to-end testing for frontend user flows."
-    },
-    {
-      name: "Traefik",
-      slug: "traefikproxy",
-      color: "#24A1C1",
-      level: "Reverse proxy and routing for Docker-based services."
-    },
-    {
-      name: "PyCharm",
-      slug: "pycharm",
-      color: "#21D789",
-      level: "Main IDE for Python development and debugging."
-    }
-  ]
-};
-
-const softSkillsData = [
-  {
-    icon: "record_voice_over",
-    title: "Technical Communication",
-    desc: "Explaining complex technical ideas clearly to both technical and non-technical audiences."
-  },
-  {
-    icon: "groups",
-    title: "Collaboration",
-    desc: "Working effectively with designers, developers, and product teams."
-  },
-  {
-    icon: "sync",
-    title: "Agile Mindset",
-    desc: "Comfortable working in iterative development and fast feedback cycles."
-  },
-  {
-    icon: "psychology",
-    title: "Problem Solving",
-    desc: "Analyzing problems logically and implementing maintainable solutions."
-  },
-  {
-    icon: "school",
-    title: "Continuous Learning",
-    desc: "Actively learning new tools and frameworks to improve development skills."
-  },
-  {
-    icon: "slideshow",
-    title: "Presentation Skills",
-    desc: "Presenting technical work clearly during demos and reviews."
-  }
-];
 
 export default Skills;

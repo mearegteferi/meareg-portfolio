@@ -1,146 +1,202 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTheme } from '../App';
 
-const Header: React.FC = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const navLinks = [
+  { href: '#home',       label: 'Home',       id: 'home' },
+  { href: '#about',      label: 'About',      id: 'about' },
+  { href: '#skills',     label: 'Skills',     id: 'skills' },
+  { href: '#experience', label: 'Experience', id: 'experience' },
+  { href: '#projects',   label: 'Projects',   id: 'projects' },
+];
 
-  const toggleMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-
-  const NavLink: React.FC<{ href: string; label: string; onClick?: () => void }> = ({ href, label, onClick }) => (
-    <a
-      href={href}
-      onClick={onClick}
-      className="relative text-gray-200 text-sm font-medium tracking-wide hover:text-cyan-400 transition-colors duration-300 group"
-    >
-      {label}
-      <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-cyan-400 transition-all duration-300 group-hover:w-full"></span>
+const Logo: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <a href="#home" className="group flex items-center gap-2.5 select-none">
+      <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-600/30 group-hover:shadow-indigo-500/50 transition-all duration-300 group-hover:scale-105">
+        <span className="text-sm font-black text-white leading-none">M</span>
+      </div>
+      <div className="flex flex-col leading-none">
+        <span className={`text-base font-black tracking-tight transition-colors group-hover:text-indigo-400 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          Meareg
+        </span>
+        <span className="text-[9px] font-medium text-indigo-400 tracking-widest uppercase group-hover:text-violet-400 transition-colors">
+          Teferi
+        </span>
+      </div>
     </a>
   );
+};
+
+/* Sun icon */
+const SunIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+  </svg>
+);
+
+/* Moon icon */
+const MoonIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+  </svg>
+);
+
+const Header: React.FC = () => {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === 'dark';
+
+  const [open, setOpen]           = useState(false);
+  const [scrolled, setScrolled]   = useState(false);
+  const [activeSection, setActive] = useState('home');
+
+  /* Scroll detection */
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 20);
+
+      /* Active section via IntersectionObserver-style scroll check */
+      const sections = navLinks.map((l) => l.id);
+      let current = 'home';
+      for (const id of sections) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 80) current = id;
+        }
+      }
+      setActive(current);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const bgClass = scrolled
+    ? isDark
+      ? 'bg-[#111118]/95 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20'
+      : 'bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm'
+    : 'bg-transparent border-b border-transparent';
 
   return (
-    <>
-      {/* Global Animations & Styles */}
-      <style>
-        {`
-          @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-          }
-          @keyframes float-delayed {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-          }
-          @keyframes pulse-glow {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-          }
-          .animate-float { animation: float 6s ease-in-out infinite; }
-          .animate-float-delayed { animation: float-delayed 7s ease-in-out infinite 1s; }
-          .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
-          .glass-panel {
-            background: rgba(17, 25, 40, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.125);
-          }
-          .text-gradient {
-            background: linear-gradient(to right, #c084fc, #6366f1, #22d3ee);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-          }
-          .bg-gradient-mesh {
-            background: radial-gradient(circle at 50% 50%, #2a1b3d 0%, #030014 100%);
-          }
-        `}
-      </style>
+    <header className={`fixed top-0 z-50 w-full transition-all duration-300 ${bgClass}`}>
+      <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
 
-      <div className="fixed top-0 z-50 w-full flex justify-center px-4 pt-4">
-        <header className="glass-panel w-full max-w-7xl rounded-full px-6 py-3 shadow-2xl shadow-purple-900/20">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 group-hover:rotate-180 transition-transform duration-700">
-                <span className="material-symbols-outlined text-white text-xl">code</span>
-              </div>
-              <h2 className="text-white text-lg font-bold tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all duration-300">
-                MearegTeferi
-              </h2>
-            </div>
+        <Logo />
 
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-8">
-              <nav className="flex gap-6">
-                <NavLink href="#home" label="Home" />
-                <NavLink href="#about" label="About" />
-                <NavLink href="#skills" label="Skills" />
-                <NavLink href="#experience" label="Experience" />
-                <NavLink href="#projects" label="Work" />
-              </nav>
-              <div className="flex items-center gap-4">
-                <a
-                  href="#contact"
-                  className="px-4 py-1.5 rounded-full 
-                      bg-gradient-to-r from-purple-600 to-indigo-600
-                      text-white text-xs font-bold
-                      shadow-md shadow-purple-500/30
-                      hover:shadow-purple-500/50 hover:scale-105
-                      transition-all duration-300"
-                >
-                  Let's Talk
-                </a>
-
-                <a
-                  href="https://github.com/mearegteferi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-full 
-                        bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 
-                        text-white text-sm font-semibold
-                        border border-gray-700
-                        shadow-lg shadow-cyan-500/20
-                        hover:shadow-cyan-500/40 hover:scale-105
-                        hover:text-cyan-400
-                        transition-all duration-300"
-                  aria-label="GitHub"
-                >
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                    <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.09 3.29 9.42 7.86 10.95.57.1.78-.25.78-.55v-2.02c-3.2.7-3.87-1.54-3.87-1.54-.53-1.35-1.3-1.71-1.3-1.71-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.1-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.45.11-3.03 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.18-1.18 3.18-1.18.63 1.58.23 2.74.11 3.03.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.4-5.25 5.69.42.36.79 1.08.79 2.18v3.23c0 .3.21.66.79.55A11.52 11.52 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z" />
-                  </svg>
-                  <span>GitHub</span>
-                </a>
-
-              </div>
-
-
-            </div>
-
-            {/* Mobile Toggle */}
-            <div className="md:hidden">
-              <button
-                onClick={toggleMenu}
-                className="text-white hover:text-cyan-400 transition-colors"
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-7">
+          {navLinks.map((link) => {
+            const isActive = activeSection === link.id;
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`text-sm transition-colors relative group ${
+                  isActive
+                    ? 'text-indigo-400 font-semibold'
+                    : isDark
+                    ? 'text-gray-400 hover:text-white'
+                    : 'text-gray-500 hover:text-gray-900'
+                }`}
               >
-                <span className="material-symbols-outlined text-3xl">
-                  {isMobileMenuOpen ? 'close' : 'menu_open'}
-                </span>
-              </button>
-            </div>
-          </div>
+                {link.label}
+                <span
+                  className={`absolute -bottom-0.5 left-0 h-px bg-gradient-to-r from-indigo-400 to-violet-400 transition-all duration-300 ${
+                    isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}
+                />
+              </a>
+            );
+          })}
+        </nav>
 
-          {/* Mobile Menu */}
-          <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${isMobileMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
-            <div className="flex flex-col items-center gap-4 pb-4 text-center">
-              <NavLink href="#home" label="Home" onClick={toggleMenu} />
-              <NavLink href="#about" label="About" onClick={toggleMenu} />
-              <NavLink href="#skills" label="Skills" onClick={toggleMenu} />
-              <NavLink href="#projects" label="Projects" onClick={toggleMenu} />
-              <NavLink href="#contact" label="Contact" onClick={toggleMenu} />
-            </div>
-          </div>
-        </header>
+        {/* Right controls */}
+        <div className="hidden md:flex items-center gap-3">
+          {/* Dark/light toggle */}
+          <button
+            onClick={toggle}
+            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 border ${
+              isDark
+                ? 'border-white/15 bg-white/5 text-gray-400 hover:text-yellow-300 hover:border-yellow-400/30 hover:bg-yellow-400/10'
+                : 'border-gray-200 bg-gray-100 text-gray-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50'
+            }`}
+            aria-label="Toggle theme"
+          >
+            {isDark ? <SunIcon /> : <MoonIcon />}
+          </button>
+
+          <a
+            href="https://github.com/mearegteferi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-sm transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+          >
+            GitHub
+          </a>
+          <a
+            href="#contact"
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold hover:from-indigo-500 hover:to-violet-500 transition-all duration-200 shadow-md shadow-indigo-600/25 hover:-translate-y-0.5"
+          >
+            Contact
+          </a>
+        </div>
+
+        {/* Mobile: theme toggle + hamburger */}
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            onClick={toggle}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-colors ${
+              isDark ? 'border-white/15 bg-white/5 text-gray-400' : 'border-gray-200 bg-gray-100 text-gray-500'
+            }`}
+            aria-label="Toggle theme"
+          >
+            {isDark ? <SunIcon /> : <MoonIcon />}
+          </button>
+          <button
+            className={`p-1 transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {open
+                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              }
+            </svg>
+          </button>
+        </div>
       </div>
-    </>
+
+      {/* Mobile menu */}
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-72 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className={`border-t px-4 py-4 flex flex-col gap-4 ${isDark ? 'border-white/10 bg-[#111118]' : 'border-gray-200 bg-white'}`}>
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className={`text-sm transition-colors ${
+                activeSection === link.id
+                  ? 'text-indigo-400 font-semibold'
+                  : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+              }`}
+            >
+              {link.label}
+            </a>
+          ))}
+          <a
+            href="#contact"
+            onClick={() => setOpen(false)}
+            className="w-fit px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold"
+          >
+            Contact
+          </a>
+        </div>
+      </div>
+    </header>
   );
 };
 

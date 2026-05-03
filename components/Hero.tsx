@@ -1,158 +1,249 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Profile from './assets/profile.jpg';
+import { useTheme } from '../App';
+
+const ROLES = [
+  'Backend Engineer',
+  'FastAPI Specialist',
+  'Django Developer',
+  'Systems Architect',
+  'AI Integration Dev',
+];
+
+const STACK_TAGS = ['FastAPI', 'Django', 'PostgreSQL', 'Redis', 'React', 'Docker'];
 
 const Hero: React.FC = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const [roleIdx, setRoleIdx]     = useState(0);
+  const [displayed, setDisplayed] = useState('');
+  const [deleting, setDeleting]   = useState(false);
+  const [charIdx, setCharIdx]     = useState(0);
+
+  /* ── Typewriter ── */
+  useEffect(() => {
+    const current = ROLES[roleIdx];
+    let t: ReturnType<typeof setTimeout>;
+    if (!deleting && charIdx <= current.length) {
+      t = setTimeout(() => { setDisplayed(current.slice(0, charIdx)); setCharIdx((c: number) => c + 1); }, 65);
+    } else if (!deleting && charIdx > current.length) {
+      t = setTimeout(() => setDeleting(true), 2000);
+    } else if (deleting && charIdx >= 0) {
+      t = setTimeout(() => { setDisplayed(current.slice(0, charIdx)); setCharIdx((c: number) => c - 1); }, 35);
+    } else {
+      setDeleting(false);
+      setRoleIdx((i: number) => (i + 1) % ROLES.length);
+    }
+    return () => clearTimeout(t);
+  }, [charIdx, deleting, roleIdx]);
+
+  /* ── CV download ── */
+  const downloadCV = async () => {
+    try {
+      const res = await fetch('/resume.pdf');
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Meareg_Teferi_Resume.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open('/resume.pdf', '_blank');
+    }
+  };
+
   return (
-    <div id="home" className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-[#030014]">
-      {/* Custom Keyframes for Animations */}
-      <style>
-        {`
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-          }
-          @keyframes blink {
-            50% { border-color: transparent }
-          }
-          @keyframes gradient-x {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-          }
-          .animate-fade-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            opacity: 0; /* Start hidden */
-          }
-          .animate-typing {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 4px solid #22d3ee; /* Cyan cursor */
-            width: 0;
-            animation: 
-              typing 3s steps(30, end) forwards,
-              blink 0.75s step-end infinite;
-            animation-delay: 0.5s; /* Wait for "Building" to appear */
-            animation-fill-mode: forwards;
-          }
-          .animate-gradient-text {
-            background-size: 200% 200%;
-            animation: gradient-x 4s ease infinite;
-          }
-          .delay-100 { animation-delay: 0.1s; }
-          .delay-200 { animation-delay: 0.2s; }
-          .delay-500 { animation-delay: 0.5s; }
-          .delay-700 { animation-delay: 0.7s; }
-        `}
-      </style>
+    <div
+      id="home"
+      className="relative w-full h-screen flex flex-col overflow-hidden transition-colors duration-300"
+      style={{
+        background: isDark
+          ? 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(99,102,241,0.18) 0%, transparent 60%), #0c0c14'
+          : 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(99,102,241,0.10) 0%, transparent 60%), #f7f7fd',
+      }}
+    >
+      {/* Noise texture */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.025]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '128px',
+        }}
+      />
 
-      {/* Background Ambience */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] animate-pulse-glow"></div>
-      <div className="absolute bottom-[10%] right-[-5%] w-[400px] h-[400px] bg-cyan-600/20 rounded-full blur-[100px] animate-float-delayed"></div>
+      {/* Top glow */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] pointer-events-none"
+        style={{
+          background: isDark
+            ? 'radial-gradient(ellipse at center, rgba(99,102,241,0.13) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse at center, rgba(99,102,241,0.08) 0%, transparent 70%)',
+        }}
+      />
 
-      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10 pt-20">
+      {/* Side accent lines */}
+      <div className={`absolute left-0 inset-y-0 w-px ${isDark ? 'bg-gradient-to-b from-transparent via-indigo-500/20 to-transparent' : 'bg-gradient-to-b from-transparent via-indigo-400/15 to-transparent'}`} />
+      <div className={`absolute right-0 inset-y-0 w-px ${isDark ? 'bg-gradient-to-b from-transparent via-violet-500/15 to-transparent' : 'bg-gradient-to-b from-transparent via-violet-400/10 to-transparent'}`} />
 
-        {/* Text Section */}
-        <div className="flex flex-col gap-6 text-center lg:text-left">
+      {/* ── Main content — fills between header (64px) and scroll cue (56px) ── */}
+      <div className="relative z-10 flex-1 flex items-center w-full max-w-6xl mx-auto px-6 sm:px-10" style={{ paddingTop: '64px' }}>
+        <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 lg:gap-16 items-center">
 
-          {/* Badge */}
-          <div className="animate-fade-up delay-100 inline-flex items-center justify-center lg:justify-start gap-2 py-1 px-3 rounded-full border border-purple-500/30 bg-purple-500/10 w-fit mx-auto lg:mx-0 backdrop-blur-md">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-            </span>
-            <span className="text-cyan-300 text-xs font-semibold tracking-wide uppercase">Available for work</span>
-          </div>
+          {/* ── LEFT ── */}
+          <div className="flex flex-col gap-4">
 
-          {/* Main Headline */}
-          <div className="relative">
-            {/* "Building" - Slide Up */}
-            <h1 className="animate-fade-up delay-200 text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tighter">
-              Building <br />
-            </h1>
+            {/* Status pill */}
+            <div className="fade-up fade-up-1 flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/8">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                </span>
+                <span className="text-emerald-400 text-xs font-semibold tracking-widest uppercase">Available for work</span>
+              </div>
+              <div className={`h-px w-12 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
+            </div>
 
-            {/* "Digital Dreams" - Typewriter & Gradient */}
-            <div className="inline-block">
-              <h1
-                className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 pb-2 pr-1 border-r-4 border-cyan-400 overflow-hidden whitespace-nowrap"
-                style={{
-                  animation: 'typing 2s steps(14) forwards, blink 0.75s step-end infinite, gradient-x 4s ease infinite',
-                  width: '0', // Start invisible
-                  animationFillMode: 'forwards',
-                  animationDelay: '0.5s' // Wait for "Building"
-                }}
-              >
-                Web Applications
+            {/* Name */}
+            <div className="fade-up fade-up-2">
+              <p className={`text-xs font-semibold tracking-[0.2em] uppercase mb-1 ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`}>
+                Hello, I'm
+              </p>
+              <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[0.95] ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Meareg
+              </h1>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[0.95] bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-400 bg-clip-text text-transparent">
+                Teferi
               </h1>
             </div>
+
+            {/* Typewriter */}
+            <div className="fade-up fade-up-3 flex items-center gap-3">
+              <div className="w-6 h-px bg-gradient-to-r from-indigo-500 to-violet-500 shrink-0" />
+              <span className={`text-lg font-semibold ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
+                {displayed}
+                <span className="cursor-blink text-indigo-400">|</span>
+              </span>
+            </div>
+
+            {/* Bio */}
+            <p className={`fade-up fade-up-3 text-sm leading-relaxed max-w-md ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              Backend-heavy engineer specializing in scalable systems with{' '}
+              <span className={`font-semibold ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>Clean Architecture</span> &{' '}
+              <span className={`font-semibold ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>DDD</span>.
+              Building with <span className="text-indigo-400 font-semibold">FastAPI</span>,{' '}
+              <span className="text-indigo-400 font-semibold">Django</span> &{' '}
+              <span className="text-indigo-400 font-semibold">React</span>.
+            </p>
+
+            {/* Stack tags */}
+            <div className="fade-up fade-up-3 flex flex-wrap gap-1.5">
+              {STACK_TAGS.map((tag) => (
+                <span
+                  key={tag}
+                  className={`text-xs font-medium px-2.5 py-0.5 rounded-full border transition-colors ${
+                    isDark
+                      ? 'border-white/10 bg-white/5 text-gray-400 hover:border-indigo-500/40 hover:text-indigo-300'
+                      : 'border-gray-200 bg-white text-gray-500 hover:border-indigo-300 hover:text-indigo-600'
+                  }`}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* CTA row */}
+            <div className="fade-up fade-up-4 flex flex-wrap items-center gap-2.5">
+              <a
+                href="#projects"
+                className="group relative inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold overflow-hidden shadow-lg shadow-indigo-600/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative">View Projects</span>
+                <svg className="relative w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+
+              <a
+                href="#contact"
+                className={`inline-flex items-center px-6 py-2.5 rounded-xl text-sm font-bold border hover:-translate-y-0.5 transition-all duration-200 ${
+                  isDark
+                    ? 'border-white/15 text-gray-300 hover:border-indigo-500/50 hover:text-white hover:bg-indigo-500/10'
+                    : 'border-gray-300 text-gray-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50'
+                }`}
+              >
+                Hire Me
+              </a>
+
+              <button
+                onClick={downloadCV}
+                className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold border hover:-translate-y-0.5 transition-all duration-200 ${
+                  isDark
+                    ? 'border-white/10 text-gray-500 hover:border-emerald-500/40 hover:text-emerald-400 hover:bg-emerald-500/8'
+                    : 'border-gray-200 text-gray-400 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                CV
+              </button>
+            </div>
+
+
           </div>
 
-          <p className="animate-fade-up delay-500 text-gray-400 text-lg sm:text-xl leading-relaxed max-w-lg mx-auto lg:mx-0">
-            I’m <span className="text-white font-semibold">Meareg Teferi</span>, a software engineer focused on building reliable backend systems and modern web applications.
-          </p>
+          {/* ── RIGHT: photo ── */}
+          <div className="fade-up fade-up-3 flex justify-center lg:justify-end items-center">
+            <div className="relative">
+              {/* Glow */}
+              <div
+                className="absolute -inset-6 rounded-[2rem] pointer-events-none"
+                style={{
+                  background: isDark
+                    ? 'radial-gradient(ellipse at center, rgba(99,102,241,0.18) 0%, transparent 70%)'
+                    : 'radial-gradient(ellipse at center, rgba(99,102,241,0.10) 0%, transparent 70%)',
+                }}
+              />
 
-          {/* Buttons */}
-          <div className="animate-fade-up delay-700 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start mt-4">
-            <a href="#projects" className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-cyan-50 hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-              View Work
-            </a>
-            <a href="#contact" className="w-full sm:w-auto px-8 py-4 rounded-xl border border-white/20 text-white font-bold text-lg hover:bg-white/10 hover:border-white/40 transition-all duration-300 backdrop-blur-sm">
-              Contact Me
-            </a>
-          </div>
+              {/* Corner accents */}
+              <div className="absolute -top-2.5 -left-2.5 w-5 h-5 border-t-2 border-l-2 border-indigo-500/50 rounded-tl-lg" />
+              <div className="absolute -top-2.5 -right-2.5 w-5 h-5 border-t-2 border-r-2 border-violet-500/40 rounded-tr-lg" />
+              <div className="absolute -bottom-2.5 -left-2.5 w-5 h-5 border-b-2 border-l-2 border-violet-500/40 rounded-bl-lg" />
+              <div className="absolute -bottom-2.5 -right-2.5 w-5 h-5 border-b-2 border-r-2 border-indigo-500/50 rounded-br-lg" />
 
-          {/* Social Stats */}
-          <div className="animate-fade-up delay-700 flex items-center justify-center lg:justify-start gap-6 mt-8 border-t border-white/5 pt-8">
-            <StatItem label="Years Exp." value="1+" />
-            <div className="w-[1px] h-10 bg-white/10"></div>
-            <StatItem label="Projects" value="5+" />
-            <div className="w-[1px] h-10 bg-white/10"></div>
-            <StatItem label="Clients" value="2+" />
-          </div>
-        </div>
-
-        {/* Image Section */}
-        <div className="relative flex justify-center lg:justify-end animate-float">
-          <div className="relative w-80 h-80 sm:w-96 sm:h-96 lg:w-[500px] lg:h-[500px]">
-            {/* Spinning Ring */}
-            <div className="absolute inset-0 rounded-full border border-purple-500/30 border-dashed animate-[spin_10s_linear_infinite]"></div>
-
-            {/* Glowing Backdrop */}
-            <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 opacity-20 blur-2xl"></div>
-
-            {/* Main Image Mask */}
-            <div className="absolute inset-4 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl">
+              {/* Photo */}
               <img
                 src={Profile}
                 alt="Meareg Teferi"
-                className="w-full object-cover scale-110 hover:scale-100 transition-transform duration-700"
+                className={`relative w-52 h-52 sm:w-60 sm:h-60 lg:w-72 lg:h-72 object-cover rounded-2xl shadow-2xl ${isDark ? 'border border-white/10' : 'border border-gray-200'}`}
               />
-            </div>
 
-            {/* Floating Badge */}
-            <div className="absolute -bottom-4 -left-4 glass-panel p-4 rounded-2xl flex items-center gap-3 animate-float-delayed shadow-lg shadow-purple-500/20">
-              <div className="bg-green-500/20 p-2 rounded-lg">
-                <span className="material-symbols-outlined text-green-400">code</span>
+              {/* Stack badge */}
+              <div
+                className={`float-badge absolute -bottom-4 -left-4 rounded-xl px-3 py-2 shadow-xl backdrop-blur-md border ${
+                  isDark ? 'bg-[#13131f]/90 border-indigo-500/25' : 'bg-white/90 border-indigo-200'
+                }`}
+              >
+                <p className="text-[8px] text-indigo-400 uppercase tracking-widest font-bold">Stack</p>
+                <p className={`text-xs font-bold mt-0.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>FastAPI · Django</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase font-semibold">Current Stack</p>
-                <p className="text-white font-bold">Django - FastAPI - React</p>
-              </div>
+
+
             </div>
           </div>
+
         </div>
       </div>
     </div>
   );
 };
-
-const StatItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="text-center lg:text-left">
-    <h3 className="text-2xl font-bold text-white">{value}</h3>
-    <p className="text-sm text-gray-500 uppercase tracking-wider">{label}</p>
-  </div>
-);
 
 export default Hero;
